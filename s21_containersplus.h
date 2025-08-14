@@ -34,14 +34,25 @@ class list {
   ~list();
   operator=(list && l);
 
+  iterator begin();
+  iterator end();
+
   void push_back(const_reference value);
 
   class ListIterator {
    public:
-    reference itr;
+    Node<T>* ptr;
 
-    iterator begin();
-    iterator end();
+    ListIterator();
+    ListIterator(Node<T>* current);  // change Node
+
+    reference operator*() const;
+    ListIterator& operator++();
+    ListIterator& operator--();
+    bool operator==(const ListIterator& other) const;
+    bool operator!=(const ListIterator& other) const;
   };
 };
 }  // namespace s21
+
+#include "s21_list.tpp"
