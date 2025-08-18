@@ -1,55 +1,40 @@
 # Compiler settings
 CXX := g++
-CXXFLAGS := -std=c++17 -Wall -Wextra -Werror -fprofile-arcs -ftest-coverage
-LDFLAGS := -lgtest -lgtest_main -lpthread -fprofile-arcs
+CXXFLAGS := -std=c++17 -Wall -Wextra -Werror -I.
+LDFLAGS := -lgtest -lgtest_main -lpthread
 
 # Project structure
 SRC_DIR := .
-OBJ_DIR := obj
-TEST_DIR := tests
-
-# Source files
-SRCS := $(wildcard $(SRC_DIR)/s21_*.h) $(wildcard $(SRC_DIR)/s21_*.tpp)
-LIB := s21_containers.a
+LIST_DIR := ./list
+TEST_DIR := ./tests
 
 # Test files
-TEST_SRCS := $(TEST_DIR)/test.cpp
-TEST_OBJ := $(patsubst $(TEST_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(TEST_SRCS))
-TEST_EXEC := test_container
+TEST_SRC := $(TEST_DIR)/test.cpp
+TEST_EXEC := test_containers
 
 # Coverage settings
 COVERAGE_DIR := coverage
 
-.PHONY: all clean test gcov_report rebuild
+.PHONY: all test clean gcov_report
 
-all: $(LIB)
+all: test
 
-$(OBJ_DIR)/%.o: $(TEST_DIR)/%.cpp | $(OBJ_DIR)
-	$(CXX) $(CXXFLAGS) -I$(SRC_DIR) -c $< -o $@
-
-$(OBJ_DIR):
-	mkdir -p $(OBJ_DIR)
-
-$(TEST_EXEC): $(TEST_OBJ)
-	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+$(TEST_EXEC): $(TEST_SRC) $(wildcard $(LIST_DIR)/*.h) $(wildcard $(LIST_DIR)/*.tpp)
+	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS)
 
 test: $(TEST_EXEC)
 	./$(TEST_EXEC)
 
-gcov_report: $(TEST_EXEC)
-	./$(TEST_EXEC)
+gcov_report: CXXFLAGS += -fprofile-arcs -ftest-coverage
+gcov_report: LDFLAGS += -fprofile-arcs
+gcov_report: test
 	mkdir -p $(COVERAGE_DIR)
 	lcov --capture --directory . --output-file $(COVERAGE_DIR)/coverage.info \
-		--include "*/s21_*" \
 		--exclude "*/tests/*" \
 		--exclude "/usr/*"
-	genhtml $(COVERAGE_DIR)/coverage.info --output-directory $(COVERAGE_DIR)/report \
-		--demangle-cpp --title "s21_containers coverage"
-	@echo "Coverage report: file://$(CURDIR)/$(COVERAGE_DIR)/report/index.html"
-	rm -f *.gcda *.gcno
-	open coverage/report/index.html
-
-rebuild: clean all
+	genhtml $(COVERAGE_DIR)/coverage.info --output-directory $(COVERAGE_DIR)/report
+	@echo "Coverage report available at: file://$(CURDIR)/$(COVERAGE_DIR)/report/index.html"
+	open $(COVERAGE_DIR)/report/index.html
 
 clean:
-	rm -rf $(OBJ_DIR) $(LIB) $(TEST_EXEC) $(COVERAGE_DIR) *.gcda *.gcno
+	rm -rf $(TEST_EXEC) $(COVERAGE_DIR) *.gcda *.gcno
