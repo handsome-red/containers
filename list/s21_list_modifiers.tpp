@@ -6,50 +6,64 @@ namespace s21 {
 
 template <typename T>
 void s21::list<T>::clear() {
-  while (head_) {
-    Node* next_node = head_->next;
-    delete head_;
-    head_ = next_node;
+  while (!empty()) {
+    pop_front();
   }
-  head_ = nullptr;
-  tail_ = nullptr;
 }
 
 template <typename T>
 typename s21::list<T>::iterator s21::list<T>::insert(iterator pos,
                                                      const_reference value) {
-  return iterator();
+  Node* new_node = new Node(value, pos.ptr_, pos.ptr_->next);
+
+  pos.ptr_->prev->next = new_node;
+  pos.ptr_->prev = new_node;
+
+  ++size_;
+
+  return iterator(new_node);
 }
 
 template <typename T>
-void s21::list<T>::push_front(const_reference value) {
-  Node* new_node = new Node(value, nullptr, nullptr);
+void s21::list<T>::erase(iterator pos) {
+  if (empty() || pos.ptr_ == fake_node_) return;
 
-  if (this->head_ == nullptr) {
-    head_ = new_node;
-    tail_ = new_node;
-  } else {
-    new_node->next = head_;
-    head_->prev = new_node;
-    head_ = new_node;
-  }
-  ++size_;
+  Node* to_delete = pos.ptr_;
+
+  pos.ptr_->prev->next = pos.ptr_->next;
+  pos.ptr_->next->prev = pos.ptr_->prev;
+
+  delete to_delete;
+
+  --size_;
 }
 
 template <typename T>
 void s21::list<T>::push_back(const_reference value) {
-  Node* new_node = new Node{value, nullptr, nullptr};
+  insert(end(), value);
+}
 
-  if (this->tail_ == nullptr) {
-    head_ = new_node;
-    tail_ = new_node;
-  } else {
-    tail_->next = new_node;  // (10) -(next)-> (20)
-    new_node->prev = tail_;  // (10) <-(prev)- (20)
-    tail_ = new_node;        //
+template <typename T>
+void s21::list<T>::pop_back() {
+  if (!empty()) {
+    erase(--end());
   }
+}
 
-  ++size_;
+template <typename T>
+void s21::list<T>::push_front(const_reference value) {
+  insert(begin(), value);
+}
+
+template <typename T>
+void s21::list<T>::pop_front() {
+  if (!empty()) {
+    erase(begin());
+  }
+}
+template <typename T>
+void s21::list<T>::swap(list& other) noexcept {
+  ;
 }
 
 template <typename T>

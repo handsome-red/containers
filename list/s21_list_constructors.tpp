@@ -2,87 +2,82 @@
 
 #include "s21_list.h"
 
-namespace s21 {
-
-/**
- * default constructor
- */
 template <typename T>
-s21::list<T>::list() : head_(nullptr), tail_(nullptr), size_(0) {}
-// s21::list<T>::list() : size_(0) {
-//   fake_node = new Node(T(), nullptr, nullptr);
-//   fake_node->next = fake_node;
-//   fake_node->prev = fake_node;
-// }
+s21::list<T>::list() : size_(0) {
+  fake_node_ = new Node(T(), nullptr, nullptr);
+  fake_node_->next = fake_node_;
+  fake_node_->prev = fake_node_;
+}
 
-/**
- * parameterized constructor
- */
 template <typename T>
-s21::list<T>::list(size_type n) : head_(nullptr), tail_(nullptr), size_(0) {
-  while (n--) {
-    push_back(T());
+s21::list<T>::list(size_type n) : list() {
+  try {
+    while (n--) {
+      push_back(T());  // заменить на emplace_back
+    }
+  } catch (...) {
+    clear();
+    throw;
   }
 }
 
-/**
- * initializer list constructor
- */
 template <typename T>
-s21::list<T>::list(std::initializer_list<value_type> const& items)
-    : head_(nullptr), tail_(nullptr), size_(0) {
-  for (const auto& i : items) {
-    push_back(i);
+s21::list<T>::list(std::initializer_list<value_type> const& items) : list() {
+  try {
+    for (const auto& item : items) {
+      push_back(item);
+    }
+  } catch (...) {
+    clear();
+    throw;
   }
 }
 
-/**
- * copy constructor
- */
 template <typename T>
-s21::list<T>::list(const list& l) : head_(nullptr), tail_(nullptr), size_(0) {
-  for (const auto& i : l) {
-    push_back(i);
+s21::list<T>::list(const list& l) : list() {
+  if (this == &l) {
+    return;
+  }
+
+  try {
+    for (const auto& item : l) {
+      push_back(item);
+    }
+  } catch (...) {
+    clear();
+    throw;
   }
 }
 
-/**
- * move constructor
- */
 template <typename T>
-s21::list<T>::list(list&& l) : head_(l.head_), tail_(l.tail_), size_(l.size_) {
-  l.head_ = nullptr;
-  l.tail_ = nullptr;
-  l.size_ = 0;
+s21::list<T>::list(list&& l) noexcept : list() {
+  std::swap(fake_node_, l.fake_node_);
+  std::swap(size_, l.size_);
 }
 
-/**
- * destructor
- */
 template <typename T>
 s21::list<T>::~list() {
-  s21::list<T>::clear();
+  if (fake_node_) {
+    s21::list<T>::clear();
+    delete fake_node_;
+    fake_node_ = nullptr;
+  }
 }
 
-/**
- * assignment operator overload for moving object
- */
 template <typename T>
-s21::list<T>& s21::list<T>::operator=(list&& l) {
-  while (head_) {
-    Node* next_node = head_->next;
-    delete head_;
-    head_ = next_node;
+s21::list<T>& s21::list<T>::operator=(const list& l) {
+  if (this != &l) {
+    list temp(l);
+    std::swap(temp);
   }
-
-  this->head_ = l.head_;
-  this->tail_ = l.tail_;
-  this->size_ = l.size_;
-  l.head_ = nullptr;
-  l.tail_ = nullptr;
-  l.size_ = 0;
-
   return *this;
 }
 
-}  // namespace s21
+template <typename T>
+s21::list<T>& s21::list<T>::operator=(list&& l) noexcept {
+  if (this != &l) {
+    list temp(std::move(l));
+    std::swap(temp);
+  }
+  return *this;
+}

@@ -3,7 +3,38 @@
 #include "s21_list.h"
 
 namespace s21 {
-/* ListIterator construct*/
+
+template <typename T>
+typename s21::list<T>::iterator s21::list<T>::begin() noexcept {
+  return iterator(fake_node_->next);
+}
+
+template <typename T>
+typename s21::list<T>::iterator s21::list<T>::end() noexcept {
+  return iterator(fake_node_);
+}
+
+template <typename T>
+typename s21::list<T>::const_iterator s21::list<T>::begin() const noexcept {
+  return const_iterator(fake_node_->next);
+}
+
+template <typename T>
+typename s21::list<T>::const_iterator s21::list<T>::end() const noexcept {
+  return const_iterator(fake_node_);
+}
+
+template <typename T>
+typename s21::list<T>::const_iterator s21::list<T>::cbegin() const noexcept {
+  return const_iterator(fake_node_->next);
+}
+
+template <typename T>
+typename s21::list<T>::const_iterator s21::list<T>::cend() const noexcept {
+  return const_iterator(fake_node_);
+}
+
+/////////////////////
 
 template <typename T>
 typename s21::list<T>::ListIterator& s21::list<T>::ListIterator::operator++() {
@@ -42,13 +73,4 @@ bool s21::list<T>::ListIterator::operator!=(const ListIterator& other) const {
   return !(*this == other);
 }
 
-template <typename T>
-typename s21::list<T>::iterator s21::list<T>::begin() {
-  return iterator(head_);
-}
-
-template <typename T>
-typename s21::list<T>::iterator s21::list<T>::end() {
-  return iterator(nullptr);
-}
 }  // namespace s21
