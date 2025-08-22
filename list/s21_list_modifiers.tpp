@@ -63,7 +63,8 @@ void s21::list<T>::pop_front() {
 }
 template <typename T>
 void s21::list<T>::swap(list& other) noexcept {
-  ;
+  std::swap(fake_node_, other.fake_node_);
+  std::swap(size_, other.size_);
 }
 
 template <typename T>
