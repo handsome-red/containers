@@ -1,16 +1,15 @@
-# Compiler settings
 CXX := g++
-CXXFLAGS := -std=c++17 -Wall -Wextra -Werror -I.
+CXXFLAGS := -std=c++17 -Wall -Wextra -Werror -I. -I./list
 LDFLAGS := -lgtest -lgtest_main -lpthread
 
-# Project structure
 SRC_DIR := .
 LIST_DIR := ./list
 TEST_DIR := ./tests
 
-# Test files
 TEST_SRC := $(TEST_DIR)/test.cpp
 TEST_EXEC := test_containers
+
+LIST_TPP := $(LIST_DIR)/s21_list_*.tpp
 
 # Coverage settings
 COVERAGE_DIR := coverage

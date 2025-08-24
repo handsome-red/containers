@@ -4,16 +4,20 @@
 
 template <typename T>
 s21::list<T>::list() : size_(0) {
-  fake_node_ = new Node(T(), nullptr, nullptr);
-  fake_node_->next = fake_node_;
-  fake_node_->prev = fake_node_;
+  try {
+    fake_node_ = new Node{value_type(), nullptr, nullptr};
+    fake_node_->next = fake_node_;
+    fake_node_->prev = fake_node_;
+  } catch (...) {
+    throw std::bad_alloc();
+  }
 }
 
 template <typename T>
 s21::list<T>::list(size_type n) : list() {
   try {
     while (n--) {
-      push_back(T());  // заменить на emplace_back
+      push_back(value_type());  // заменить на emplace_back
     }
   } catch (...) {
     clear();
@@ -45,6 +49,8 @@ s21::list<T>::list(const list& l) : list() {
     }
   } catch (...) {
     clear();
+    delete fake_node_;
+    fake_node_ = nullptr;
     throw;
   }
 }
@@ -57,8 +63,8 @@ s21::list<T>::list(list&& l) noexcept : list() {
 
 template <typename T>
 s21::list<T>::~list() {
+  clear();
   if (fake_node_) {
-    s21::list<T>::clear();
     delete fake_node_;
     fake_node_ = nullptr;
   }
@@ -68,7 +74,7 @@ template <typename T>
 s21::list<T>& s21::list<T>::operator=(const list& l) {
   if (this != &l) {
     list temp(l);
-    std::swap(temp);
+    swap(temp);
   }
   return *this;
 }
@@ -77,7 +83,7 @@ template <typename T>
 s21::list<T>& s21::list<T>::operator=(list&& l) noexcept {
   if (this != &l) {
     list temp(std::move(l));
-    std::swap(temp);
+    swap(temp);
   }
   return *this;
 }

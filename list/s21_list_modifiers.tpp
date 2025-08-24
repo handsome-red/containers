@@ -59,6 +59,7 @@ void s21::list<T>::pop_front() {
     erase(begin());
   }
 }
+
 template <typename T>
 void s21::list<T>::swap(list& other) noexcept {
   std::swap(fake_node_, other.fake_node_);
@@ -68,47 +69,51 @@ void s21::list<T>::swap(list& other) noexcept {
 /* Переписать с использованием splice */
 template <typename T>
 void s21::list<T>::merge(list& other) {
-  if (*this == other) {
+  if (this == &other) {
     return;
   }
 
   list<T> result;
 
-  auto itOne = this.begin();
+  auto itOne = this->begin();
   auto itTwo = other.begin();
-  while (itOne != this->end() && itTwo != other.end()) T valueOne = *itOne;
-  T valueTwo = *itTwo;
 
-  if (valueOne < valueTwo) {
-    result.push_back(valueOne);
-    ++itOne;
-  } else if (valueTwo < valueOne) {
-    result.push_back(valueTwo);
-    ++itTwo;
-  } else {
-    result.push_back(valueOne);
-    result.push_back(valueTwo);
-    ++itOne;
-    ++itTwo;
+  while (itOne != this->end() && itTwo != other.end()) {
+    T valueOne = *itOne;
+    T valueTwo = *itTwo;
+
+    if (valueOne < valueTwo) {
+      result.push_back(valueOne);
+      ++itOne;
+    } else if (valueTwo < valueOne) {
+      result.push_back(valueTwo);
+      ++itTwo;
+    } else {
+      result.push_back(valueOne);  // ALERT
+      result.push_back(valueTwo);
+      ++itOne;
+      ++itTwo;
+    }
   }
 
-  while (itOne != *this.end()) {
-    int valueOne = *itOne;
+  while (itOne != this->end()) {
+    T valueOne = *itOne;
     result.push_back(valueOne);
     ++itOne;
   }
 
   while (itTwo != other.end()) {
-    int valueTwo = *itTwo;
+    T valueTwo = *itTwo;
     result.push_back(valueTwo);
     ++itTwo;
   }
 
-  *this = result;
+  swap(result);
+  // *this = result;
 }
 
 template <typename T>
-void s21::list<T>::splice(const_iterator pos, list& other) {
+void s21::list<T>::splice(const_iterator pos, list& other) {  // ALERT
   if (other.empty()) {
     return;
   }
@@ -134,7 +139,7 @@ void s21::list<T>::reverse() noexcept {
 
   Node* tmp = fake_node_->next;
   while (tmp->next != fake_node_) {
-    tmp->next->prev =
+    // tmp->next->prev =
   }
 }
 
@@ -160,9 +165,13 @@ void s21::list<T>::unique() {
   }
 }
 
+// 7 3 8 5   4 2 9 1 6
+// 7 3 8 6 | 4 2 9 1 6
+//
+
 template <typename T>
 void s21::list<T>::sort() {
-  if (size_ == 1) {
+  if (size_ <= 1) {
     return;
   }
 
@@ -170,4 +179,19 @@ void s21::list<T>::sort() {
   list<T> right;
 
   auto current = this->begin();
+
+  for (size_t i = 0; i < size_ / 2; ++i) {
+    left.push_back(value_type(*current));
+    ++current;
+  }
+
+  while (current != end()) {
+    right.push_back(value_type(*current));
+    ++current;
+  }
+
+  left.sort();
+  right.sort();
+  left.merge(right);
+  swap(left);
 }

@@ -89,11 +89,11 @@ class list {
 
     Node* ptr_;
 
-    ListIterator() : ptr_(nullptr) {}
-    explicit ListIterator(Node* current) : ptr_(current) {}
+    ListIterator();
+    explicit ListIterator(Node* current);
 
-    reference operator*() const { return ptr_->value_; }
-    pointer operator->() const { return &ptr_->value_; }
+    reference operator*() const;
+    pointer operator->() const;
 
     ListIterator& operator++();
     ListIterator operator++(int);
@@ -131,3 +131,9 @@ class list {
   };
 };
 }  // namespace s21
+
+#include "s21_list_accessors.tpp"
+#include "s21_list_capacity.tpp"
+#include "s21_list_constructors.tpp"
+#include "s21_list_iterators.tpp"
+#include "s21_list_modifiers.tpp"
